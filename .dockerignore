@@ -1,0 +1,8 @@
+__pycache__
+.coverage
+.idea/
+README.md
+Dockerfile
+docker
+docker-compose.yml
+docker-compose.cache.json

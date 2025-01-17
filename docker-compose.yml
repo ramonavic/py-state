@@ -1,0 +1,6 @@
+services:
+  statemachine:
+    build:
+      context: .
+    volumes:
+      - ".:/opt/py-state"

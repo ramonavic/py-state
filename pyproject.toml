@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "mp-fsm"
+version = "0.1.0"
+description = ""
+authors = ["Ramon Hofmeister <r.hofmeister@amsterdam.nl>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+
+[tool.poetry.group.dev.dependencies]
+anyio = "^4.8.0"
+black = "^24.10.0"
+isort = "^5.13.2"
+mypy = "^1.14.1"
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+pytest-mock = "^3.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+omit = [
+    "tests/*"
+
+]
+
+[tool.isort]
+profile = "black"
+overwrite_in_place = true
+
+[tool.mypy]
+strict = true
