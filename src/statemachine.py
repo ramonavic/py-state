@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, TypeAlias, TypeVar
 
 from src.exceptions import (
     GuardException,
@@ -7,8 +7,7 @@ from src.exceptions import (
     WrongStateException,
 )
 
-
-class State: ...
+State: TypeAlias = str
 
 
 class StateAwareContext:
@@ -16,27 +15,13 @@ class StateAwareContext:
     Context that has a state attribute.
     """
 
-    state: str
+    state: State
 
 
 T = TypeVar("T", bound="StateAwareContext")
 
 
-class StateGuard(Generic[T], metaclass=ABCMeta):
-    _allowed_states: list[State]
-    """
-    Check if context is one of the allowed states before executing an action.
-    """
-
-    def __init__(self, allowed_states: list[State]):
-        self._allowed_states = allowed_states
-
-    def __call__(self, context: T) -> None:
-        if context.state not in self._allowed_states:
-            raise GuardException(f"Action not allowed in state {context.state}")
-
-
-class Transition(metaclass=ABCMeta):
+class Transition(Generic[T], metaclass=ABCMeta):
     """
     Base class to define a transition from one state to another.
     """
@@ -50,15 +35,15 @@ class Transition(metaclass=ABCMeta):
     def to_state(self) -> State: ...
 
     @property
-    def transition_guards(self) -> list["TransitionGuard"]:
+    def transition_guards(self) -> list["TransitionGuard[T]"]:
         return []
 
     @property
-    def before_callbacks(self) -> list["TransitionCallback"]:
+    def before_callbacks(self) -> list["TransitionCallback[T]"]:
         return []
 
     @property
-    def after_callbacks(self) -> list["TransitionCallback"]:
+    def after_callbacks(self) -> list["TransitionCallback[T]"]:
         return []
 
 
@@ -68,16 +53,16 @@ class TransitionGuard(Generic[T], metaclass=ABCMeta):
     """
 
     @abstractmethod
-    def __call__(self, context: T) -> bool: ...
+    async def __call__(self, context: T) -> bool: ...
 
 
-class TransitionCallback:
+class TransitionCallback(Generic[T], metaclass=ABCMeta):
     """
     Callback function to be attached to a transition.
     """
 
     @abstractmethod
-    def __call__(self, context: T) -> None: ...
+    async def __call__(self, context: T) -> None: ...
 
 
 class StateMachine(Generic[T], metaclass=ABCMeta):
@@ -98,12 +83,27 @@ class StateMachine(Generic[T], metaclass=ABCMeta):
             raise WrongStateException()
 
         for guard in transition.transition_guards:
-            guard(context)
+            if not await guard(context):
+                raise GuardException()
 
         for callback in transition.before_callbacks:
-            callback(context)
+            await callback(context)
 
         context.state = transition.to_state
 
         for callback in transition.after_callbacks:
-            callback(context)
+            await callback(context)
+
+
+class StateGuard(Generic[T], metaclass=ABCMeta):
+    _allowed_states: list[State]
+    """
+    Check if context is one of the allowed states before executing an action.
+    """
+
+    def __init__(self, allowed_states: list[State]):
+        self._allowed_states = allowed_states
+
+    def __call__(self, context: T) -> None:
+        if context.state not in self._allowed_states:
+            raise GuardException(f"Action not allowed in state {context.state}")
