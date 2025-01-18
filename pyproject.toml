@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "mp-fsm"
+name = "py-state"
 version = "0.1.0"
 description = ""
 authors = ["Ramon Hofmeister <r.hofmeister@amsterdam.nl>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
 anyio = "^4.8.0"
