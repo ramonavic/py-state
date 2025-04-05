@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 from enum import StrEnum
-from sre_parse import State
 
 import pytest
 
-from src.exceptions import GuardException
-from src.statemachine import (
+from py_state.exceptions import GuardException
+from py_state.statemachine import (
     StateAwareContext,
     StateGuard,
     StateMachine,

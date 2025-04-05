@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import Generic, TypeAlias, TypeVar
 
-from src.exceptions import (
+from py_state.exceptions import (
     GuardException,
     TransitionNotFoundException,
     WrongStateException,
